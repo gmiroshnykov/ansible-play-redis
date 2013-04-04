@@ -8,3 +8,23 @@
 
 - name: install 'redis-server'
   apt: pkg=redis-server state=latest
+  notify: disable redis-server
+
+- name: create redis data dir
+  file: path=${redis.options.dir}
+        state=directory
+        owner=redis
+        group=redis
+        recurse=yes
+
+- name: generate upstart script
+  template:
+    src=plays/redis/templates/upstart.conf.j2
+    dest=${redis.initfile}
+  notify: restart redis
+
+- name: generate config file
+  template:
+    src=plays/redis/templates/redis.conf.j2
+    dest=${redis.conffile}
+  notify: restart redis
