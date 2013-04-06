@@ -8,7 +8,11 @@
 
 - name: install 'redis-server'
   apt: pkg=redis-server state=latest
-  notify: disable redis-server
+  register: result
+
+- name: disable 'redis-server'
+  service: name=redis-server enabled=no state=stopped
+  when_changed: $result
 
 - name: create redis data dir
   file: path=${redis.options.dir}
